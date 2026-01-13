@@ -49,9 +49,9 @@ export class Maybe<T> {
     return this.state.value;
   }
 
-  getOrThrow(error: Error): T {
+  getOrThrow(): T {
     if (this.state.tag === 'none') {
-      throw error;
+      throw new Error('Called getOrThrow on None');
     }
     return this.state.value;
   }

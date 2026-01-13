@@ -27,7 +27,7 @@ describe('The MongoHealthRepository', () => {
     const retrieved = await repository.find();
 
     expect(retrieved.isSome()).toBe(true);
-    expect(retrieved.getOrThrow(new Error('Not found')).equals(health)).toBe(true);
+    expect(retrieved.getOrThrow().equals(health)).toBe(true);
   });
 
   it('finds nothing when empty', async () => {
@@ -45,7 +45,7 @@ describe('The MongoHealthRepository', () => {
 
     const retrieved = await repository.find();
 
-    expect(retrieved.getOrThrow(new Error('Not found')).equals(health)).toBe(true);
+    expect(retrieved.getOrThrow().equals(health)).toBe(true);
   });
 
   it('preserves creation time across updates', async () => {
@@ -55,7 +55,7 @@ describe('The MongoHealthRepository', () => {
     await repository.save(health);
 
     const retrieved = await repository.find();
-    const foundHealth = retrieved.getOrThrow(new Error('Not found'));
+    const foundHealth = retrieved.getOrThrow();
     const primitives = foundHealth.toPrimitives();
 
     expect(primitives.createdAt).toBe(jan1At10am.toISOString());

@@ -9,6 +9,7 @@ describe('GET /health', () => {
   let server: ReturnType<typeof createServer>;
 
   beforeAll(async () => {
+    process.env.JWT_SECRET = 'test-secret-for-e2e-tests';
     mongo = await createTestMongo();
     Factory.setMongoClient(mongo.client());
     server = createServer();

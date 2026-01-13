@@ -120,13 +120,13 @@ describe('The Maybe', () => {
     it('extracts safely when present', () => {
       const maybe = Maybe.some(42);
 
-      expect(maybe.getOrThrow(new Error('No value'))).toBe(42);
+      expect(maybe.getOrThrow()).toBe(42);
     });
 
     it('fails when extracting from absent', () => {
       const maybe = Maybe.none<number>();
 
-      expect(() => maybe.getOrThrow(new Error('No value'))).toThrow('No value');
+      expect(() => maybe.getOrThrow()).toThrow('Called getOrThrow on None');
     });
 
     it('applies transformation when present', () => {
@@ -134,7 +134,7 @@ describe('The Maybe', () => {
 
       const result = maybe.fold(
         () => 'none',
-        (x) => `value: ${x}`,
+        (x) => `value: ${x}`
       );
 
       expect(result).toBe('value: 42');
@@ -145,7 +145,7 @@ describe('The Maybe', () => {
 
       const result = maybe.fold(
         () => 'none',
-        (x) => `value: ${x}`,
+        (x) => `value: ${x}`
       );
 
       expect(result).toBe('none');

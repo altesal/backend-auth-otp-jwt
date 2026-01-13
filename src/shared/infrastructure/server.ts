@@ -10,5 +10,9 @@ export function createServer(): Express {
   app.use(pinoHttp({ logger: pinoInstance }));
   const healthController = Factory.createHealthController();
   app.get(Routes.Health, (request, response) => healthController.check(request, response));
+  const authController = Factory.createAuthController();
+  app.post(Routes.AuthRegister, (request, response) => authController.register(request, response));
+  app.post(Routes.AuthLoginRequestOtp, (request, response) => authController.requestOtp(request, response));
+  app.post(Routes.AuthLoginVerifyOtp, (request, response) => authController.verifyOtp(request, response));
   return app;
 }

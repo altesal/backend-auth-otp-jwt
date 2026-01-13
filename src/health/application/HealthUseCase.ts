@@ -20,7 +20,7 @@ export class HealthUseCase {
       (existing) => {
         existing.update(now);
         return existing;
-      },
+      }
     );
     await this.healthRepository.save(health);
     return this.toDto(health);

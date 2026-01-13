@@ -19,7 +19,7 @@ describe('The Health', () => {
 
   it('does not allow creation when lastCheckedAt is before createdAt', () => {
     expect(() => Health.create(Id.generate(), jan1At10am5min, jan1At10am)).toThrow(
-      'lastCheckedAt cannot be before createdAt',
+      'lastCheckedAt cannot be before createdAt'
     );
   });
 

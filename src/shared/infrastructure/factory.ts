@@ -73,7 +73,7 @@ export class Factory {
 
   private static getOtpSender(): OtpSender {
     if (!this.otpSender) {
-      this.otpSender = new ConsoleOtpSender(this.getLogger());
+      this.otpSender = new ConsoleOtpSender();
     }
     return this.otpSender;
   }

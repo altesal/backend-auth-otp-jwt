@@ -1,0 +1,297 @@
+openapi: 3.0.3
+info:
+  title: Backend API
+  version: 1.0.0
+  description: |
+    API de autenticación basada en OTP y gestión de perfil de usuario.
+    
+    ## Flujo de autenticación
+    1. Registrar usuario con email
+    2. Solicitar OTP (se envía por consola en desarrollo)
+    3. Verificar OTP para obtener JWT
+    4. Usar JWT en endpoints protegidos
+
+servers:
+  - url: http://localhost:8080
+    description: Servidor de desarrollo
+
+tags:
+  - name: Health
+    description: Estado del servicio
+  - name: Auth
+    description: Registro y autenticación
+  - name: Profile
+    description: Gestión del perfil de usuario
+
+paths:
+  /health:
+    get:
+      tags:
+        - Health
+      summary: Health check
+      description: Verifica el estado del servicio y la conexión a MongoDB
+      responses:
+        '200':
+          description: Servicio funcionando correctamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  /auth/register:
+    post:
+      tags:
+        - Auth
+      summary: Registrar nuevo usuario
+      description: Crea un nuevo usuario con el email proporcionado
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: user@example.com
+      responses:
+        '201':
+          description: Usuario registrado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '401':
+          description: Formato de email inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Email ya registrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/login/request-otp:
+    post:
+      tags:
+        - Auth
+      summary: Solicitar código OTP
+      description: |
+        Envía un código OTP de 6 dígitos al usuario.
+        En desarrollo, el código se muestra en la consola del servidor.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: user@example.com
+      responses:
+        '200':
+          description: OTP enviado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: OTP sent
+        '404':
+          description: Usuario no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/login/verify-otp:
+    post:
+      tags:
+        - Auth
+      summary: Verificar código OTP
+      description: |
+        Verifica el código OTP y devuelve un token JWT.
+        El código es válido por 5 minutos y se permite un máximo de 3 intentos.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - otp
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: user@example.com
+                otp:
+                  type: string
+                  pattern: '^\d{6}$'
+                  example: '123456'
+      responses:
+        '200':
+          description: Autenticación exitosa
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    description: JWT token
+                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        '401':
+          description: OTP inválido o expirado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: No hay sesión OTP activa
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Cuenta bloqueada por demasiados intentos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /profile/me:
+    get:
+      tags:
+        - Profile
+      summary: Obtener perfil actual
+      description: Devuelve el perfil del usuario autenticado
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Perfil del usuario
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '401':
+          description: No autenticado o token inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    patch:
+      tags:
+        - Profile
+      summary: Actualizar perfil
+      description: Actualiza el nombre completo y teléfono del usuario
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - fullName
+                - phone
+              properties:
+                fullName:
+                  type: string
+                  minLength: 1
+                  maxLength: 100
+                  example: John Doe
+                phone:
+                  type: string
+                  pattern: '^\+\d{7,15}$'
+                  description: Formato internacional (+34612345678) o vacío
+                  example: '+34612345678'
+      responses:
+        '200':
+          description: Perfil actualizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '400':
+          description: Campos requeridos faltantes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: No autenticado o token inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validación fallida (nombre vacío o formato de teléfono inválido)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Token JWT obtenido en /auth/login/verify-otp
+
+  schemas:
+    UserResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: 550e8400-e29b-41d4-a716-446655440000
+        email:
+          type: string
+          format: email
+          example: user@example.com
+        fullName:
+          type: string
+          example: John Doe
+        phone:
+          type: string
+          example: '+34612345678'
+        createdAt:
+          type: string
+          format: date-time
+          example: '2024-01-01T00:00:00.000Z'
+
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: ok
+        mongo:
+          type: string
+          example: connected
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          example: Error message

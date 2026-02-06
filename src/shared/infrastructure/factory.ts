@@ -12,9 +12,14 @@ import { ConsoleOtpSender } from '../../auth/infrastructure/adapters/ConsoleOtpS
 import { RegisterUserUseCase } from '../../auth/application/RegisterUserUseCase';
 import { RequestOtpUseCase } from '../../auth/application/RequestOtpUseCase';
 import { VerifyOtpUseCase } from '../../auth/application/VerifyOtpUseCase';
+import { GetCurrentUserUseCase } from '../../auth/application/GetCurrentUserUseCase';
+import { UpdateProfileUseCase } from '../../auth/application/UpdateProfileUseCase';
 import { AuthController } from '../../auth/infrastructure/http/AuthController';
+import { ProfileController } from '../../auth/infrastructure/http/ProfileController';
+import { createAuthMiddleware } from '../../auth/infrastructure/http/AuthMiddleware';
 import { OtpSender } from '../../auth/application/ports/OtpSender';
 import { TokenGenerator } from '../../auth/application/ports/TokenGenerator';
+import { TokenVerifier } from '../../auth/application/ports/TokenVerifier';
 import { Logger } from '../application/ports/Logger';
 import { createPinoLogger } from './adapters/PinoLogger';
 
@@ -24,7 +29,7 @@ export class Factory {
   private static userRepository: UserRepository;
   private static otpSessionRepository: OtpSessionRepository;
   private static otpSender: OtpSender;
-  private static tokenGenerator: TokenGenerator;
+  private static tokenService: JsonWebTokenService;
   private static logger: Logger;
 
   static getLogger(): Logger {
@@ -78,11 +83,19 @@ export class Factory {
     return this.otpSender;
   }
 
-  private static getTokenGenerator(): TokenGenerator {
-    if (!this.tokenGenerator) {
-      this.tokenGenerator = new JsonWebTokenService();
+  private static getTokenService(): JsonWebTokenService {
+    if (!this.tokenService) {
+      this.tokenService = new JsonWebTokenService();
     }
-    return this.tokenGenerator;
+    return this.tokenService;
+  }
+
+  private static getTokenGenerator(): TokenGenerator {
+    return this.getTokenService();
+  }
+
+  private static getTokenVerifier(): TokenVerifier {
+    return this.getTokenService();
   }
 
   static createHealthUseCase(): HealthUseCase {
@@ -102,7 +115,7 @@ export class Factory {
   }
 
   static createVerifyOtpUseCase(): VerifyOtpUseCase {
-    return new VerifyOtpUseCase(this.getOtpSessionRepository(), this.getTokenGenerator());
+    return new VerifyOtpUseCase(this.getOtpSessionRepository(), this.getUserRepository(), this.getTokenGenerator());
   }
 
   static createAuthController(): AuthController {
@@ -112,5 +125,25 @@ export class Factory {
       this.createVerifyOtpUseCase(),
       this.getLogger()
     );
+  }
+
+  static createGetCurrentUserUseCase(): GetCurrentUserUseCase {
+    return new GetCurrentUserUseCase(this.getUserRepository());
+  }
+
+  static createUpdateProfileUseCase(): UpdateProfileUseCase {
+    return new UpdateProfileUseCase(this.getUserRepository());
+  }
+
+  static createProfileController(): ProfileController {
+    return new ProfileController(
+      this.createGetCurrentUserUseCase(),
+      this.createUpdateProfileUseCase(),
+      this.getLogger()
+    );
+  }
+
+  static createAuthMiddleware() {
+    return createAuthMiddleware(this.getTokenVerifier());
   }
 }

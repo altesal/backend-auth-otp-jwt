@@ -3,4 +3,5 @@ export enum Routes {
   AuthRegister = '/auth/register',
   AuthLoginRequestOtp = '/auth/login/request-otp',
   AuthLoginVerifyOtp = '/auth/login/verify-otp',
+  ProfileMe = '/profile/me',
 }

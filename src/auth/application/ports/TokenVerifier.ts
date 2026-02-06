@@ -1,6 +1,6 @@
-import { Email } from '../../domain/value-objects/Email';
+import { Id } from '../../../shared/domain/value-objects/Id';
 
 export interface TokenVerifier {
-  verify(token: string): Email;
+  verify(token: string): Id;
 }
 

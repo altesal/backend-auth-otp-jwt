@@ -6,7 +6,7 @@ import { Factory } from './shared/infrastructure/factory';
 
 async function main(): Promise<void> {
   const logger = Factory.getLogger();
-  const port = process.env.PORT || 3000;
+  const port = process.env.PORT || 8080;
   try {
     await Factory.connectToMongo();
     logger.info('Connected to MongoDB');

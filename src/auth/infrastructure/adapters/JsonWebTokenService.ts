@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import { TokenGenerator } from '../../application/ports/TokenGenerator';
 import { TokenVerifier } from '../../application/ports/TokenVerifier';
-import { Email } from '../../domain/value-objects/Email';
+import { Id } from '../../../shared/domain/value-objects/Id';
 import { DomainError } from '../../../shared/domain/DomainError';
 
 export class JsonWebTokenService implements TokenGenerator, TokenVerifier {
@@ -23,19 +23,19 @@ export class JsonWebTokenService implements TokenGenerator, TokenVerifier {
       parseInt(process.env.JWT_EXPIRATION_SECONDS || '', 10) || JsonWebTokenService.defaultExpiresInSeconds;
   }
 
-  generate(email: Email): string {
-    return jwt.sign({ email: email.value }, this.secret, {
+  generate(userId: Id): string {
+    return jwt.sign({ userId: userId.value }, this.secret, {
       expiresIn: this.expiresInSeconds,
       algorithm: 'HS256',
     });
   }
 
-  verify(token: string): Email {
+  verify(token: string): Id {
     try {
       const payload = jwt.verify(token, this.secret, {
         algorithms: ['HS256'],
-      }) as { email: string };
-      return Email.create(payload.email);
+      }) as { userId: string };
+      return Id.create(payload.userId);
     } catch {
       throw DomainError.createValidation('Invalid token');
     }

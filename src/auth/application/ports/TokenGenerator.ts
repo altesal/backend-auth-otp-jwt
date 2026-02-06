@@ -1,6 +1,6 @@
-import { Email } from '../../domain/value-objects/Email';
+import { Id } from '../../../shared/domain/value-objects/Id';
 
 export interface TokenGenerator {
-  generate(email: Email): string;
+  generate(userId: Id): string;
 }
 

@@ -1,4 +1,5 @@
 import { OtpSessionRepository } from '../domain/repositories/OtpSessionRepository';
+import { UserRepository } from '../domain/repositories/UserRepository';
 import { OtpSession } from '../domain/entities/OtpSession';
 import { TokenGenerator } from './ports/TokenGenerator';
 import { Email } from '../domain/value-objects/Email';
@@ -12,6 +13,7 @@ export interface TokenDto {
 export class VerifyOtpUseCase {
   constructor(
     private otpSessionRepository: OtpSessionRepository,
+    private userRepository: UserRepository,
     private tokenGenerator: TokenGenerator
   ) {}
 
@@ -55,7 +57,12 @@ export class VerifyOtpUseCase {
 
   private async completeVerification(email: Email): Promise<TokenDto> {
     await this.otpSessionRepository.deleteByEmail(email);
-    const token = this.tokenGenerator.generate(email);
+    const maybeUser = await this.userRepository.findByEmail(email);
+    if (maybeUser.isNone()) {
+      throw DomainError.createNotFound('User not found');
+    }
+    const user = maybeUser.getOrThrow();
+    const token = this.tokenGenerator.generate(user.id);
     return { token };
   }
 }

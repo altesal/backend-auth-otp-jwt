@@ -7,7 +7,6 @@
 <br/>
 </div>
 
-
 # Backend Template
 
 [![Node.js](https://img.shields.io/badge/Node.js-24-339933.svg)](https://nodejs.org/)
@@ -15,7 +14,6 @@
 [![Express](https://img.shields.io/badge/Express-5-000000.svg)](https://expressjs.com/)
 [![MongoDB](https://img.shields.io/badge/MongoDB-7-47A248.svg)](https://www.mongodb.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-
 
 
 Production-ready backend template with hexagonal architecture.
@@ -64,13 +62,6 @@ cp .env.example .env
 
 # Run (development)
 npm start
-```
-
-## Docker
-
-```bash
-docker build -t backend-template .
-docker run -p 8080:8080 -e MONGO_URI=mongodb://host.docker.internal:27017/app backend-template
 ```
 
 ## Scripts

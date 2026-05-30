@@ -50,9 +50,17 @@ Quiero desarrollar un módulo `auth` con registro y login OTP usando JWT (sin re
 
 MONGO_URI=mongodb+srv://user-Proyecto-softwarecraftersMPL:pass@cluster0.byobino.mongodb.net/backend-template?retryWrites=true&w=majority
 
+npm start -> en un terminal debo ver
+
+PS C:\mirepositorio\backend-auth-otp-jwt> npm start
+
+> backend-template@1.0.0 start
+> tsx watch src/main.ts
+
+{"level":30,"time":1780163202929,"pid":12968,"hostname":"EQUIPO","msg":"Connected to MongoDB"}
 
 
-1. Registro
+1. Registrar un usuario...
 
 Invoke-RestMethod -Method POST -Uri http://localhost:3001/auth/register -ContentType "application/json" -Body '{"email":"test5@example.com"}'
 id                                   email            createdAt

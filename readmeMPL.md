@@ -48,6 +48,18 @@ Quiero desarrollar un módulo `auth` con registro y login OTP usando JWT (sin re
 
 # Comprobaciones
 
+Comenzamos viendo si funciona
+Invoke-RestMethod -Method GET -Uri http://localhost:3001/health
+
+curl.exe -s http://localhost:3001/health | ConvertFrom-Json | ConvertTo-Json
+
+ curl.exe --% -s -X POST http://localhost:3001/auth/register -H "Content-Type: application/json" -d "{\"email\":\"test582@example.com\"}" | ConvertFrom-Json | ConvertTo-Json
+{
+    "id":  "27282a2f-ace8-4b83-afec-36f6755799b4",
+    "email":  "test582@example.com",
+    "createdAt":  "2026-05-31T17:30:19.765Z"
+}
+
 MONGO_URI=mongodb+srv://user-Proyecto-softwarecraftersMPL:pass@cluster0.byobino.mongodb.net/backend-template?retryWrites=true&w=majority
 
 npm start -> en un terminal debo ver
